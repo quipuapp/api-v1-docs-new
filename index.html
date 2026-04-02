@@ -10,6 +10,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <style>
       body { margin: 0; }
+      #quipu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 20px;
+        background: #ffffff;
+        border-bottom: 1px solid #d5d9e2;
+        font-family: 'Montserrat', sans-serif;
+      }
+      #quipu-header a { text-decoration: none; display: flex; align-items: center; gap: 12px; }
+      #quipu-header img { height: 28px; }
+      #quipu-header .api-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #4a4a68;
+        padding-left: 12px;
+        border-left: 1px solid #d5d9e2;
+      }
       .light-mode {
         --scalar-font: 'Open Sans', sans-serif;
         --scalar-font-code: 'JetBrains Mono', monospace;
@@ -57,16 +75,24 @@
         --scalar-radius: 8px;
         --scalar-radius-lg: 12px;
       }
-      /* Header branding */
-      .scalar-api-reference .section-header {
-        font-family: 'Montserrat', sans-serif !important;
+      .dark-mode #quipu-header {
+        background: #0f0f1a;
+        border-bottom-color: #2d2d4a;
       }
+      .dark-mode #quipu-header img { filter: brightness(0) invert(1); }
+      .dark-mode #quipu-header .api-label { color: #b0b0c8; border-left-color: #2d2d4a; }
     </style>
   </head>
   <body>
+    <div id="quipu-header">
+      <a href="https://getquipu.com" target="_blank">
+        <img src="./logo.png" alt="Quipu" />
+        <span class="api-label">API v1 Reference</span>
+      </a>
+    </div>
     <script
       id="api-reference"
-      data-url="./openapi.yaml?v=8"
+      data-url="./openapi.yaml?v=9"
       data-configuration='{
         "layout": "modern",
         "theme": "none",
@@ -82,51 +108,5 @@
         }
       }'></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-    <script>
-      // Inject Quipu logo into sidebar after Scalar renders
-      const observer = new MutationObserver(() => {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar && !document.getElementById('quipu-logo')) {
-          const logoDiv = document.createElement('div');
-          logoDiv.id = 'quipu-logo';
-          logoDiv.style.cssText = 'padding: 16px 12px 8px 12px; border-bottom: 1px solid var(--scalar-sidebar-border-color);';
-          logoDiv.innerHTML = '<a href="https://getquipu.com" target="_blank"><img src="./logo.png" alt="Quipu" style="height: 28px;" /></a>';
-          sidebar.insertBefore(logoDiv, sidebar.firstChild);
-          observer.disconnect();
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-
-      // Add deprecated badge next to "Tickets" in sidebar
-      function addDeprecatedBadge(root) {
-        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-        while (walker.nextNode()) {
-          const node = walker.currentNode;
-          if (node.textContent.trim() === 'Tickets' && !node.parentElement.querySelector('.dep-badge')) {
-            const badge = document.createElement('span');
-            badge.className = 'dep-badge';
-            badge.textContent = 'deprecated';
-            badge.style.cssText = 'background:#dc3545;color:#fff;font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;margin-left:6px;text-transform:uppercase;letter-spacing:.3px;vertical-align:middle;display:inline-block;';
-            node.parentElement.appendChild(badge);
-            return true;
-          }
-        }
-        return false;
-      }
-      const badgeObserver = new MutationObserver(() => {
-        // Try in main DOM
-        if (addDeprecatedBadge(document.body)) {
-          badgeObserver.disconnect();
-          return;
-        }
-        // Try in shadow DOMs
-        document.querySelectorAll('*').forEach(el => {
-          if (el.shadowRoot && addDeprecatedBadge(el.shadowRoot)) {
-            badgeObserver.disconnect();
-          }
-        });
-      });
-      badgeObserver.observe(document.body, { childList: true, subtree: true });
-    </script>
   </body>
 </html>
