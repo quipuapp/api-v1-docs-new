@@ -47,7 +47,7 @@ tags:
     description: Read-only listing of all book entries (invoices, simplified invoices, additional income, paysheets)
   - name: Invoices
     description: Full invoices (income and expenses)
-  - name: "Tickets \u26D4 DEPRECATED"
+  - name: Tickets
     description: "**DEPRECATED** — Use Simplified Invoices (for income) or Additional Income (for expenses) instead."
   - name: Simplified Invoices
     description: Simplified invoices
@@ -492,7 +492,7 @@ paths:
       summary: List tickets
       deprecated: true
       description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
-      tags: ["Tickets ⛔ DEPRECATED"]
+      tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -519,7 +519,7 @@ paths:
       summary: Create ticket
       deprecated: true
       description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
-      tags: ["Tickets ⛔ DEPRECATED"]
+      tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -555,7 +555,7 @@ paths:
       summary: Show ticket
       deprecated: true
       description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
-      tags: ["Tickets ⛔ DEPRECATED"]
+      tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -579,7 +579,7 @@ paths:
       summary: Update ticket
       deprecated: true
       description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
-      tags: ["Tickets ⛔ DEPRECATED"]
+      tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
@@ -616,7 +616,7 @@ paths:
       summary: Delete ticket
       deprecated: true
       description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
-      tags: ["Tickets ⛔ DEPRECATED"]
+      tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
         - $ref: "#/components/parameters/AcceptHeader"
