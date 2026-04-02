@@ -44,17 +44,17 @@ tags:
   - name: Contacts
     description: Clients and suppliers
   - name: Book Entries
-    description: Read-only listing of all book entries (invoices, simplified invoices, additional income, paysheets)
+    description: "Read-only listing of all book entries. The type filter accepts: invoices, paysheets, tickets."
   - name: Invoices
     description: Full invoices (income and expenses)
   - name: Tickets
-    description: "**DEPRECATED** — Use Simplified Invoices or Additional Income endpoints instead."
+    description: "**DEPRECATED** — Blocked for Verifactu accounts (returns 403). Use Simplified Invoices or Additional Income endpoints instead."
   - name: Simplified Invoices
     description: Simplified invoices
   - name: Additional Incomes
-    description: Additional income entries (simplified income documents)
+    description: "Additional income entries (simplified income documents). Always outbound (income). These entries are not subject to Verifactu."
   - name: Paysheets
-    description: Employee paysheets
+    description: "Employee paysheets. Note: For paysheets, issuing_* fields refer to the company (target) and recipient_* fields refer to the employee (origin), which is reversed from other book entry types."
   - name: Numbering Series
     description: Invoice numbering series configuration
   - name: Accounting Categories
@@ -116,6 +116,38 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - name: filter[kind]
+          in: query
+          schema:
+            type: string
+            enum: [client, supplier, employee]
+          description: Filter by contact kind
+        - name: filter[tax_id]
+          in: query
+          schema:
+            type: string
+          description: Filter by tax ID
+        - name: filter[country]
+          in: query
+          schema:
+            type: string
+          description: Filter by country code (comma-separated for multiple)
+        - name: filter[email]
+          in: query
+          schema:
+            type: string
+          description: Filter by email address
+        - name: filter[q]
+          in: query
+          schema:
+            type: string
+          description: Free-text search across contact fields
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [name, -name, total_paid_income, -total_paid_income, total_unpaid_income, -total_unpaid_income, total_paid_expenses, -total_paid_expenses, total_unpaid_expenses, -total_unpaid_expenses]
+          description: Sort field (prefix with `-` for descending)
       responses:
         "200":
           description: Paginated list of contacts
@@ -265,7 +297,7 @@ paths:
           in: query
           schema:
             type: string
-            enum: [invoices, tickets, simplified_invoices, additional_incomes, paysheets]
+            enum: [invoices, tickets, paysheets]
           description: Filter by entry type
         - name: filter[kind]
           in: query
@@ -294,11 +326,21 @@ paths:
           schema:
             type: integer
           description: Filter by contact ID
-        - name: filter[field_query]
+        - name: filter[validation_status]
           in: query
           schema:
             type: string
-          description: Field-level query filter
+          description: Filter by validation status
+        - name: filter[field_query][field]
+          in: query
+          schema:
+            type: string
+          description: Field name for field-level query filter
+        - name: filter[field_query][term]
+          in: query
+          schema:
+            type: string
+          description: Search term for field-level query filter
         - name: sort
           in: query
           schema:
@@ -491,7 +533,7 @@ paths:
       operationId: listTickets
       summary: List tickets
       deprecated: true
-      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
+      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead. Returns 403 Forbidden for Verifactu-activated accounts."
       tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -518,7 +560,7 @@ paths:
       operationId: createTicket
       summary: Create ticket
       deprecated: true
-      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
+      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead. Returns 403 Forbidden for Verifactu-activated accounts."
       tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -554,7 +596,7 @@ paths:
       operationId: getTicket
       summary: Show ticket
       deprecated: true
-      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
+      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead. Returns 403 Forbidden for Verifactu-activated accounts."
       tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -578,7 +620,7 @@ paths:
       operationId: updateTicket
       summary: Update ticket
       deprecated: true
-      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
+      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead. Returns 403 Forbidden for Verifactu-activated accounts."
       tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -615,7 +657,7 @@ paths:
       operationId: deleteTicket
       summary: Delete ticket
       deprecated: true
-      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead."
+      description: "**Deprecated.** Use Simplified Invoices or Additional Income instead. Returns 403 Forbidden for Verifactu-activated accounts."
       tags: [Tickets]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1058,6 +1100,27 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - name: filter[applicable_to]
+          in: query
+          schema:
+            type: string
+          description: Filter by applicable_to value
+        - name: filter[amending]
+          in: query
+          schema:
+            type: boolean
+          description: Filter by amending status
+        - name: filter[prefix]
+          in: query
+          schema:
+            type: string
+          description: Filter by prefix
+        - name: filter[applies_to]
+          in: query
+          schema:
+            type: string
+            enum: [new_documents, existing_documents]
+          description: Filter by applies_to value
       responses:
         "200":
           description: Paginated list of numbering series
@@ -1141,6 +1204,7 @@ paths:
     patch:
       operationId: updateNumberingSeries
       summary: Update numbering series
+      description: "Update an existing numbering series. Note: prefix cannot be changed after creation."
       tags: [Numbering Series]
       parameters:
         - $ref: "#/components/parameters/OwnerSlug"
@@ -1200,6 +1264,21 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - name: filter[kind]
+          in: query
+          schema:
+            type: string
+          description: Filter by kind (comma-separated for multiple)
+        - name: filter[prefix]
+          in: query
+          schema:
+            type: string
+          description: Filter by prefix (comma-separated for multiple)
+        - name: filter[active]
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
       responses:
         "200":
           description: Paginated list of accounting categories
@@ -1252,6 +1331,11 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - name: filter[accounting_category_id]
+          in: query
+          schema:
+            type: string
+          description: Filter by accounting category ID (comma-separated for multiple)
       responses:
         "200":
           description: Paginated list of accounting subcategories
@@ -1402,12 +1486,15 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [file]
+              required: [file, book_entry_id]
               properties:
                 file:
                   type: string
                   format: binary
                   description: The file to upload
+                book_entry_id:
+                  type: string
+                  description: ID of the book entry to attach the file to (required)
       responses:
         "201":
           description: Attachment created
@@ -2000,6 +2087,28 @@ components:
                 type: string
             notes:
               type: string
+            equivalence_surcharge:
+              type: boolean
+              description: Whether equivalence surcharge applies
+            credit_note_reason:
+              type: string
+              enum: [R1, R2, R3, R4, R5, R6, R7, R8]
+              description: Reason code for credit notes
+            exempt_reason:
+              type: string
+              enum: [R1, R2, R3]
+              description: Reason code for VAT exemption
+            collection_type:
+              type: string
+              enum: [R1, R2, R3, R4, none]
+              description: Collection type
+            canary_island_special_zone:
+              type: string
+              enum: [R1]
+              description: Canary Island special zone indicator
+            account_number_and_swift_bic:
+              type: string
+              description: Bank account number and SWIFT/BIC code
         relationships:
           type: object
           properties:
@@ -2395,15 +2504,19 @@ components:
               items:
                 type: string
             net_pay:
-              type: string
+              type: number
+              description: Net pay amount
             gross_pay:
               type: string
             employee_ss_amount:
-              type: string
+              type: number
+              description: Employee social security amount
             employee_retention:
-              type: string
+              type: number
+              description: Employee retention amount
             company_ss_amount:
-              type: string
+              type: number
+              description: Company social security amount
         relationships:
           type: object
           properties:
