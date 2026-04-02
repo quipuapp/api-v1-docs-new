@@ -66,7 +66,7 @@
   <body>
     <script
       id="api-reference"
-      data-url="./openapi.yaml?v=6"
+      data-url="./openapi.yaml?v=7"
       data-configuration='{
         "layout": "modern",
         "theme": "none",
@@ -98,19 +98,33 @@
       observer.observe(document.body, { childList: true, subtree: true });
 
       // Add deprecated badge next to "Tickets" in sidebar
-      const badgeObserver = new MutationObserver(() => {
-        const sidebarLinks = document.querySelectorAll('.sidebar a, .sidebar button, .sidebar span, .sidebar [class*="item"], .sidebar [class*="label"]');
-        for (const el of sidebarLinks) {
-          if (el.textContent.trim() === 'Tickets' && !el.querySelector('.deprecated-badge')) {
+      function addDeprecatedBadge(root) {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+        while (walker.nextNode()) {
+          const node = walker.currentNode;
+          if (node.textContent.trim() === 'Tickets' && !node.parentElement.querySelector('.dep-badge')) {
             const badge = document.createElement('span');
-            badge.className = 'deprecated-badge';
+            badge.className = 'dep-badge';
             badge.textContent = 'deprecated';
-            badge.style.cssText = 'background: #dc3545; color: white; font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 3px; margin-left: 6px; text-transform: uppercase; letter-spacing: 0.3px; vertical-align: middle;';
-            el.appendChild(badge);
-            badgeObserver.disconnect();
-            break;
+            badge.style.cssText = 'background:#dc3545;color:#fff;font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;margin-left:6px;text-transform:uppercase;letter-spacing:.3px;vertical-align:middle;display:inline-block;';
+            node.parentElement.appendChild(badge);
+            return true;
           }
         }
+        return false;
+      }
+      const badgeObserver = new MutationObserver(() => {
+        // Try in main DOM
+        if (addDeprecatedBadge(document.body)) {
+          badgeObserver.disconnect();
+          return;
+        }
+        // Try in shadow DOMs
+        document.querySelectorAll('*').forEach(el => {
+          if (el.shadowRoot && addDeprecatedBadge(el.shadowRoot)) {
+            badgeObserver.disconnect();
+          }
+        });
       });
       badgeObserver.observe(document.body, { childList: true, subtree: true });
     </script>
