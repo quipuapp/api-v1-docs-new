@@ -61,6 +61,20 @@
       .scalar-api-reference .section-header {
         font-family: 'Montserrat', sans-serif !important;
       }
+      /* Quipu logo above sidebar */
+      .sidebar .sidebar-search-container::before {
+        content: '';
+        display: block;
+        background-image: url('https://getquipu.com/images/Logo_quipu_completo-1.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: left center;
+        height: 32px;
+        margin: 16px 12px 12px 12px;
+      }
+      .dark-mode .sidebar .sidebar-search-container::before {
+        filter: brightness(0) invert(1);
+      }
     </style>
   </head>
   <body>
