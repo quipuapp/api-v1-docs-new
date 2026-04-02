@@ -22,6 +22,10 @@ info:
     All list endpoints return paginated results. The response includes a
     `meta.pagination_info` object with `total_pages`, `current_page`, and
     `total_results`.
+  x-logo:
+    url: https://getquipu.com/images/Logo_quipu_completo-1.png
+    altText: Quipu
+    href: https://getquipu.com
   contact:
     name: Quipu Integrations
     url: https://getquipu.com/es/integraciones
