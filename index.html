@@ -82,5 +82,20 @@
         }
       }'></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script>
+      // Inject Quipu logo into sidebar after Scalar renders
+      const observer = new MutationObserver(() => {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar && !document.getElementById('quipu-logo')) {
+          const logoDiv = document.createElement('div');
+          logoDiv.id = 'quipu-logo';
+          logoDiv.style.cssText = 'padding: 16px 12px 8px 12px; border-bottom: 1px solid var(--scalar-sidebar-border-color);';
+          logoDiv.innerHTML = '<a href="https://getquipu.com" target="_blank"><img src="./logo.png" alt="Quipu" style="height: 28px;" /></a>';
+          sidebar.insertBefore(logoDiv, sidebar.firstChild);
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    </script>
   </body>
 </html>
