@@ -5,8 +5,62 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/png" href="https://getquipu.com/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet" />
     <style>
       body { margin: 0; }
+      .light-mode {
+        --scalar-font: 'Open Sans', sans-serif;
+        --scalar-font-code: 'JetBrains Mono', monospace;
+        --scalar-color-1: #1a1a2e;
+        --scalar-color-2: #4a4a68;
+        --scalar-color-3: #6b7280;
+        --scalar-color-accent: #009b72;
+        --scalar-background-1: #ffffff;
+        --scalar-background-2: #F6F7F9;
+        --scalar-background-3: #ECEEF2;
+        --scalar-border-color: #d5d9e2;
+        --scalar-button-1: #009b72;
+        --scalar-button-1-color: #ffffff;
+        --scalar-button-1-hover: #007d5c;
+        --scalar-sidebar-background-1: #F6F7F9;
+        --scalar-sidebar-color-1: #1a1a2e;
+        --scalar-sidebar-color-2: #4a4a68;
+        --scalar-sidebar-color-active: #009b72;
+        --scalar-sidebar-border-color: #ECEEF2;
+        --scalar-sidebar-search-background: #ffffff;
+        --scalar-sidebar-search-border-color: #d5d9e2;
+        --scalar-radius: 8px;
+        --scalar-radius-lg: 12px;
+      }
+      .dark-mode {
+        --scalar-font: 'Open Sans', sans-serif;
+        --scalar-color-1: #f0f0f5;
+        --scalar-color-2: #b0b0c8;
+        --scalar-color-3: #8888a8;
+        --scalar-color-accent: #00c991;
+        --scalar-background-1: #0f0f1a;
+        --scalar-background-2: #1a1a2e;
+        --scalar-background-3: #252540;
+        --scalar-border-color: #2d2d4a;
+        --scalar-button-1: #00c991;
+        --scalar-button-1-color: #0f0f1a;
+        --scalar-button-1-hover: #009b72;
+        --scalar-sidebar-background-1: #0f0f1a;
+        --scalar-sidebar-color-1: #f0f0f5;
+        --scalar-sidebar-color-2: #b0b0c8;
+        --scalar-sidebar-color-active: #00c991;
+        --scalar-sidebar-border-color: #2d2d4a;
+        --scalar-sidebar-search-background: #1a1a2e;
+        --scalar-sidebar-search-border-color: #2d2d4a;
+        --scalar-radius: 8px;
+        --scalar-radius-lg: 12px;
+      }
+      /* Header branding */
+      .scalar-api-reference .section-header {
+        font-family: 'Montserrat', sans-serif !important;
+      }
     </style>
   </head>
   <body>
@@ -14,13 +68,18 @@
       id="api-reference"
       data-url="./openapi.yaml"
       data-configuration='{
-        "theme": "quipu",
         "layout": "modern",
-        "customCss": ".dark-mode { --scalar-background-1: #1a1a2e; } .light-mode { --scalar-color-1: #009b72; --scalar-color-accent: #009b72; --scalar-button-1: #009b72; --scalar-button-1-hover: #007d5c; }",
+        "theme": "none",
+        "hideModels": false,
+        "hideDownloadButton": false,
+        "hideDarkModeToggle": false,
+        "defaultHttpClient": {
+          "targetKey": "shell",
+          "clientKey": "curl"
+        },
         "metaData": {
           "title": "Quipu API v1 Reference"
-        },
-        "hiddenClients": true
+        }
       }'></script>
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
   </body>
