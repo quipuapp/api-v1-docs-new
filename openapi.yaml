@@ -48,7 +48,7 @@ tags:
   - name: Invoices
     description: Full invoices (income and expenses)
   - name: Tickets
-    description: "**DEPRECATED** — Use Simplified Invoices (for income) or Additional Income (for expenses) instead."
+    description: "**DEPRECATED** — Use Simplified Invoices or Additional Income endpoints instead."
   - name: Simplified Invoices
     description: Simplified invoices
   - name: Additional Incomes
