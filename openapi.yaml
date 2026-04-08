@@ -319,8 +319,8 @@ paths:
           in: query
           schema:
             type: string
-            enum: [paid, unpaid, partially_paid]
-          description: Filter by payment status
+            enum: [paid, unpaid, due, pending]
+          description: "Filter by payment status. Note: `unpaid` includes both `pending` and overdue entries."
         - name: filter[contact_id]
           in: query
           schema:
@@ -375,6 +375,48 @@ paths:
         - $ref: "#/components/parameters/AcceptHeader"
         - $ref: "#/components/parameters/PageNumber"
         - $ref: "#/components/parameters/PageSize"
+        - name: filter[kind]
+          in: query
+          schema:
+            type: string
+            enum: [expenses, income]
+          description: Filter by kind (expenses or income)
+        - name: filter[q]
+          in: query
+          schema:
+            type: string
+          description: Free-text search
+        - name: filter[period]
+          in: query
+          schema:
+            type: string
+          description: "Filter by period (e.g. \"2024Q1\", \"2024-01\")"
+        - name: filter[payment_status]
+          in: query
+          schema:
+            type: string
+            enum: [paid, unpaid, due, pending]
+          description: "Filter by payment status. Note: `unpaid` includes both `pending` and overdue entries."
+        - name: filter[validation_status]
+          in: query
+          schema:
+            type: string
+          description: Filter by validation status
+        - name: filter[contact_id]
+          in: query
+          schema:
+            type: integer
+          description: Filter by contact ID
+        - name: filter[field_query][field]
+          in: query
+          schema:
+            type: string
+          description: Field name for field-level query filter
+        - name: filter[field_query][term]
+          in: query
+          schema:
+            type: string
+          description: Search term for field-level query filter
       responses:
         "200":
           description: Paginated list of invoices
@@ -2104,8 +2146,8 @@ components:
               description: Collection type
             canary_island_special_zone:
               type: string
-              enum: [R1]
-              description: Canary Island special zone indicator
+              enum: [r1, r2, r3, none]
+              description: Canary Island special zone indicator. Required for Canary Island owners when all items have 0% VAT.
             account_number_and_swift_bic:
               type: string
               description: Bank account number and SWIFT/BIC code
