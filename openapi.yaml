@@ -1033,7 +1033,6 @@ paths:
                   kind: expenses
                   issue_date: "2024-03-31"
                   net_pay: "1800.00"
-                  gross_pay: "2400.00"
                   employee_ss_amount: "150.00"
                   employee_retention: "360.00"
                   company_ss_amount: "720.00"
@@ -1196,12 +1195,13 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/NumberingSeriesWritable"
+                  $ref: "#/components/schemas/NumberingSeriesCreateWritable"
             example:
               data:
                 type: numbering_series
                 attributes:
                   prefix: "INV-"
+                  applicable_to: invoices
                   default: false
                   amending: false
                   applies_to: new_documents
@@ -1262,7 +1262,7 @@ paths:
               required: [data]
               properties:
                 data:
-                  $ref: "#/components/schemas/NumberingSeriesWritable"
+                  $ref: "#/components/schemas/NumberingSeriesUpdateWritable"
       responses:
         "200":
           description: Numbering series updated
@@ -2104,9 +2104,14 @@ components:
               type: string
               format: date
               description: Issue date (REQUIRED)
+            number:
+              type: string
+              nullable: true
+              description: Full invoice number including prefix (e.g. "INV-2024-001"). Mutually exclusive with `filing_number` when a numeration series is provided.
             filing_number:
               type: string
               nullable: true
+              description: Numeric filing number within the assigned series.
             due_dates:
               type: array
               items:
@@ -2157,6 +2162,10 @@ components:
             contact:
               $ref: "#/components/schemas/RelationshipLinkage"
             numeration:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            accounting_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
             items:
               type: object
@@ -2342,6 +2351,10 @@ components:
             issue_date:
               type: string
               format: date
+            number:
+              type: string
+              nullable: true
+              description: Full simplified invoice number including prefix.
             filing_number:
               type: string
               nullable: true
@@ -2362,10 +2375,22 @@ components:
                 type: string
             notes:
               type: string
+            recipient_name:
+              type: string
+              description: Recipient (customer) name. Applicable when `kind` is `income` (outbound).
+            target_country:
+              type: string
+              description: Target country code. Applicable when `kind` is `income` (outbound).
         relationships:
           type: object
           properties:
+            contact:
+              $ref: "#/components/schemas/RelationshipLinkage"
             numeration:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            accounting_category:
+              $ref: "#/components/schemas/RelationshipLinkage"
+            accounting_subcategory:
               $ref: "#/components/schemas/RelationshipLinkage"
             items:
               type: object
@@ -2490,7 +2515,8 @@ components:
           properties:
             kind:
               type: string
-              enum: [income, expenses]
+              enum: [expenses]
+              description: Paysheets are always inbound documents, so `kind` is always `expenses`.
             net_pay:
               type: string
             gross_pay:
@@ -2531,7 +2557,8 @@ components:
           properties:
             kind:
               type: string
-              enum: [income, expenses]
+              enum: [expenses]
+              description: Paysheets are always inbound documents, so `kind` is always `expenses`.
             issue_date:
               type: string
               format: date
@@ -2548,8 +2575,6 @@ components:
             net_pay:
               type: number
               description: Net pay amount
-            gross_pay:
-              type: string
             employee_ss_amount:
               type: number
               description: Employee social security amount
@@ -2599,7 +2624,34 @@ components:
         attributes:
           $ref: "#/components/schemas/NumberingSeriesAttributes"
 
-    NumberingSeriesWritable:
+    NumberingSeriesCreateWritable:
+      type: object
+      required: [type, attributes]
+      properties:
+        type:
+          type: string
+          const: numbering_series
+        attributes:
+          type: object
+          required: [prefix]
+          properties:
+            prefix:
+              type: string
+              description: Series prefix, unique per owner. Cannot be changed after creation.
+            applicable_to:
+              type: string
+              enum: [invoices, tickets, simplified_invoices, additional_incomes, paysheets]
+              description: Restricts the series to a specific document type. Stored internally as `identifier` (singularized).
+            default:
+              type: boolean
+            amending:
+              type: boolean
+              description: Whether this series is used for amending (counter) documents.
+            applies_to:
+              type: string
+              enum: [new_documents, existing_documents]
+
+    NumberingSeriesUpdateWritable:
       type: object
       required: [type, attributes]
       properties:
@@ -2609,8 +2661,9 @@ components:
         attributes:
           type: object
           properties:
-            prefix:
+            applicable_to:
               type: string
+              enum: [invoices, tickets, simplified_invoices, additional_incomes, paysheets]
             default:
               type: boolean
             amending:
@@ -2678,8 +2731,10 @@ components:
           properties:
             name:
               type: string
+              example: "Office Supplies"
             suffix:
               type: string
+              example: "01"
         relationships:
           type: object
           properties:
@@ -2698,15 +2753,23 @@ components:
         attributes:
           type: object
           properties:
-            file_name:
-              type: string
-            file_size:
-              type: integer
-            content_type:
-              type: string
             url:
               type: string
               format: uri
+              description: URL to the original file.
+            small_url:
+              type: string
+              format: uri
+              description: URL to the preview-sized version of the file.
+            thumbnail_url:
+              type: string
+              format: uri
+              description: URL to the thumbnail-sized version of the file.
+        relationships:
+          type: object
+          properties:
+            book_entry:
+              $ref: "#/components/schemas/RelationshipLinkage"
 
   # ── Responses ──────────────────────────────────────────────────────────
   responses:
